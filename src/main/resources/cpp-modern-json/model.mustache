@@ -1,0 +1,55 @@
+{{#models}}{{#model}}#ifndef {{modelHeaderGuardPrefix}}_{{classname}}_H_
+#define {{modelHeaderGuardPrefix}}_{{classname}}_H_
+
+#include "serialization.h"
+
+{{! include optional if there's at least one optional field }}
+{{#optionalVars}}{{#-first}}#include <optional>
+{{/-first}}
+{{/optionalVars}}
+
+{{#imports}}{{{this}}}
+{{/imports}}
+
+{{#modelNamespaceDeclarations}}
+namespace {{this}} {
+{{/modelNamespaceDeclarations}}
+
+{{#description}}/**
+ * \brief {{description}}
+{{#example}} *
+ * Example: {{example}}
+{{/example}}
+ */
+{{/description}}
+struct {{classname}} {
+    static const char *dtoName() { return "swagger::dto::{{classname}}"; }
+
+    // required fields
+{{#requiredVars}}    {{{datatype}}} {{baseName}};
+{{/requiredVars}}
+
+    // optional fields
+{{#optionalVars}}    std::optional<{{{datatype}}}> {{baseName}};
+{{/optionalVars}}
+};
+
+void to_json(nlohmann::json& j, const {{classname}}& obj) {
+    j = nlohmann::json{
+{{#vars}}        { "{{baseName}}", obj.{{baseName}} },
+{{/vars}}
+    };
+}
+
+void from_json(const nlohmann::json& j, {{classname}}& obj) {
+{{#vars}}    j.at("{{baseName}}").get_to(obj.{{baseName}});
+{{/vars}}
+}
+
+{{#modelNamespaceDeclarations}}
+}  // namespace {{this}}
+{{/modelNamespaceDeclarations}}
+
+#endif /* {{modelHeaderGuardPrefix}}_{{classname}}_H_ */
+{{/model}}
+{{/models}}
