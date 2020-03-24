@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 3.10)
+
+# read template variables into cmake variables
+set(PROJECT_NAME "myPetProject")
+set(PACKAGE_NAMESPACE "generated/dtos")
+set(MODELS_NAMESPACE "generated/dtos/models")
+
+project(${PROJECT_NAME})
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+find_package(nlohmann_json 3.7.3 REQUIRED)
+
+file(GLOB SOURCE_FILES "${PACKAGE_NAMESPACE}/*.cpp"
+                       "${MODELS_NAMESPACE}/*.cpp")
+
+file(GLOB HEADER_FILES "${PACKAGE_NAMESPACE}/*.h"
+                       "${MODELS_NAMESPACE}/*.h")
+
+add_library (${PROJECT_NAME} ${SOURCE_FILES})
+
+target_include_directories(${PROJECT_NAME} PUBLIC "${PACKAGE_NAMESPACE}")
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+
+install(TARGETS ${PROJECT_NAME}
+        LIBRARY DESTINATION       lib
+        ARCHIVE DESTINATION       lib
+        PUBLIC_HEADER DESTINATION "include/${MODELS_NAMESPACE}")
