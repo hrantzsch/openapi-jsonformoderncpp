@@ -3,10 +3,8 @@
 
 #include "serialization.h"
 
-{{! include optional if there's at least one optional field }}
-{{#optionalVars}}{{#-first}}#include <optional>
-{{/-first}}
-{{/optionalVars}}
+{{#hasOptional}}#include <optional>
+{{/hasOptional}}
 
 {{#imports}}{{{this}}}
 {{/imports}}
@@ -25,13 +23,35 @@ namespace {{this}} {
 struct {{classname}} {
     static const char *dtoName() { return "swagger::dto::{{classname}}"; }
 
-    // required fields
-{{#requiredVars}}    {{{datatype}}} {{baseName}};
-{{/requiredVars}}
+{{#hasEnums}}    // enums
+{{#vars}}{{#isEnum}}{{#description}}    /**
+     * \brief {{description}}
+     */
+{{/description}}
+    enum {{enumName}} {
+{{#allowableValues}}{{#enumVars}}        {{name}},
+{{/enumVars}}{{/allowableValues}}    };
+{{/isEnum}}
+{{/vars}}
+{{/hasEnums}}
 
-    // optional fields
-{{#optionalVars}}    std::optional<{{{datatype}}}> {{baseName}};
+{{#hasRequired}}    // required fields
+{{#requiredVars}}
+{{^isEnum}}    {{{datatype}}} {{baseName}};
+{{/isEnum}}
+{{#isEnum}}    {{enumName}} {{baseName}};
+{{/isEnum}}
+{{/requiredVars}}
+{{/hasRequired}}
+
+{{#hasOptional}}    // optional fields
+{{#optionalVars}}
+{{^isEnum}}    std::optional<{{{datatype}}}> {{baseName}};
+{{/isEnum}}
+{{#isEnum}}    std::optional<{{enumName}}> {{baseName}};
+{{/isEnum}}
 {{/optionalVars}}
+{{/hasOptional}}
 };
 
 void to_json(nlohmann::json& j, const {{classname}}& obj) {

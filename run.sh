@@ -11,4 +11,4 @@ fi
 
 # run the generator for our yaml
 java -cp ./openapi-generator-cli.jar:./target/cpp-modern-json-openapi-generator-1.0.0.jar \
-org.openapitools.codegen.OpenAPIGenerator generate -g cpp-modern-json -i petstore.yaml -o ./generated
+org.openapitools.codegen.OpenAPIGenerator generate -DdebugModels -g cpp-modern-json -i petstore.yaml -o ./generated
