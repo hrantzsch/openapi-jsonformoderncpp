@@ -1,10 +1,10 @@
 #ifndef DTOGEN_SERIALIZATION_H
 #define DTOGEN_SERIALIZATION_H
 
-#include "nlohmann/json.hpp"
-
-#include <optional>
 #include <memory>
+#include <optional>
+
+#include "nlohmann/json.hpp"
 
 namespace nlohmann {
 
@@ -22,7 +22,7 @@ struct adl_serializer<std::optional<T>> {
 template <typename T>
 struct adl_serializer<std::shared_ptr<T>> {
     static void to_json(json& j, const std::shared_ptr<T>& ptr) {
-        !ptr ? j = nullptr : j = *ptr;
+        j = ptr ? *ptr : nullptr;
     }
 
     static void from_json(const json& j, std::shared_ptr<T>& ptr) {
@@ -35,5 +35,23 @@ struct adl_serializer<std::shared_ptr<T>> {
 };
 
 }  // namespace nlohmann
+
+{{#modelNamespaceDeclarations}}
+namespace {{this}} {
+{{/modelNamespaceDeclarations}}
+namespace detail {
+
+template <typename T>
+void to_optional(const nlohmann::json& j, const char* key, T& target) {
+    if (j.contains(key)) {
+        j.at(key).get_to(target);
+    }
+}
+
+{{#modelNamespaceDeclarations}}
+} // namespace {{this}}
+{{/modelNamespaceDeclarations}}
+} // namespace detail
+
 
 #endif // DTOGEN_SERIALIZATION_H

@@ -129,7 +129,7 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
      */
     // (<file>, <destination folder relative to `outputFolder`>, <target filename>)
     supportingFiles.add(new SupportingFile("nlohmann/json.hpp", "nlohmann", "json.hpp"));
-    supportingFiles.add(new SupportingFile("serialization.h", "", "serialization.h"));
+    supportingFiles.add(new SupportingFile("serialization.mustache", "", "serialization.h"));
     supportingFiles.add(new SupportingFile("test.cpp", "", "test.cpp"));
 
     /**

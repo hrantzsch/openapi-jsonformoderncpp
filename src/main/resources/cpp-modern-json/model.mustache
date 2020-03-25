@@ -42,8 +42,10 @@ void to_json(nlohmann::json& j, const {{classname}}& obj) {
 }
 
 void from_json(const nlohmann::json& j, {{classname}}& obj) {
-{{#vars}}    j.at("{{baseName}}").get_to(obj.{{baseName}});
-{{/vars}}
+{{#requiredVars}}    j.at("{{baseName}}").get_to(obj.{{baseName}});
+{{/requiredVars}}
+{{#optionalVars}}    detail::to_optional(j, "{{baseName}}", obj.{{baseName}});
+{{/optionalVars}}
 }
 
 {{#modelNamespaceDeclarations}}
