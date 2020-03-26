@@ -6,6 +6,29 @@
 
 #include "nlohmann/json.hpp"
 
+// TODO: move elsewhere
+#ifdef __clang__
+#define UNREACHABLE_CODE __builtin_unreachable();
+#elif __GNUC__
+#define UNREACHABLE_CODE __builtin_unreachable();
+#elif _MSC_VER
+#define UNREACHABLE_CODE __assume(0);
+#endif
+
+// TODO: move elsewhere
+#include <stdexcept>
+{{#modelNamespaceDeclarations}}
+namespace {{this}} {
+{{/modelNamespaceDeclarations}}
+class invalid_enum_value : public std::runtime_error {
+    public:
+        using std::runtime_error::runtime_error;
+};
+{{#modelNamespaceDeclarations}}
+}  // namespace {{this}}
+{{/modelNamespaceDeclarations}}
+
+
 namespace nlohmann {
 
 template <typename T>

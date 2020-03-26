@@ -56,7 +56,7 @@ struct {{classname}} {
 
 void to_json(nlohmann::json& j, const {{classname}}& obj) {
     j = nlohmann::json{
-{{#vars}}        { "{{baseName}}", obj.{{baseName}} },
+{{#vars}}        {"{{baseName}}", obj.{{baseName}}},
 {{/vars}}
     };
 }
@@ -71,6 +71,53 @@ void from_json(const nlohmann::json& j, {{classname}}& obj) {
 {{#modelNamespaceDeclarations}}
 }  // namespace {{this}}
 {{/modelNamespaceDeclarations}}
+
+{{#hasEnums}}
+namespace nlohmann {
+
+{{#vars}}
+{{#isEnum}}
+template<>
+struct adl_serializer<{{#modelNamespaceDeclarations}}{{this}}::{{/modelNamespaceDeclarations}}{{classname}}::{{enumName}}> {
+  private:
+    using {{classname}} = {{#modelNamespaceDeclarations}}{{this}}::{{/modelNamespaceDeclarations}}{{classname}};
+
+  public:
+    static void to_json(json& j, const {{classname}}::{{enumName}}& value) {
+        switch (value) {
+{{#allowableValues}}
+{{#enumVars}}
+        case {{classname}}::{{enumName}}::{{name}}:
+            j = "{{name}}";
+            return;
+{{/enumVars}}
+{{/allowableValues}}
+        }
+        UNREACHABLE_CODE
+    }
+
+    static void from_json(const json& j, {{classname}}::{{enumName}}& value) {
+        // TODO: there are some iffy assumptions about casing here
+        const std::string s = j.get<std::string>();
+        std::string all_caps;
+        std::transform(s.cbegin(), s.cend(), std::back_inserter(all_caps), ::toupper);
+
+{{#allowableValues}}
+{{#enumVars}}
+        if (all_caps == "{{name}}") {
+            value = {{classname}}::{{enumName}}::{{name}};
+            return;
+        }
+{{/enumVars}}
+{{/allowableValues}}
+        throw {{#modelNamespaceDeclarations}}{{this}}::{{/modelNamespaceDeclarations}}invalid_enum_value(s);
+    }
+};
+
+{{/isEnum}}
+{{/vars}}
+} // namespace nlohmann
+{{/hasEnums}}
 
 #endif /* {{modelHeaderGuardPrefix}}_{{classname}}_H_ */
 {{/model}}
