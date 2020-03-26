@@ -724,6 +724,13 @@ components:
             - available
             - pending
             - sold
+        additionalInfo:
+          type: array
+          items:
+            type: string
+            enum:
+              - preorder
+              - is_really_a_human_in_a_costume
       xml:
         name: Pet
     ApiResponse:

@@ -23,7 +23,7 @@ static std::string rawPet =
       \"name\": \"myTag\"    \
     }                        \
   ],                         \
-  \"status\": \"available\"  \
+  \"status\": \"AVAILABLE\"  \
 }";
 
 using json = nlohmann::json;

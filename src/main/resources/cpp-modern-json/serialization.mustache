@@ -69,6 +69,7 @@ void to_optional(const nlohmann::json& j, const char* key, T& target) {
     if (j.contains(key)) {
         j.at(key).get_to(target);
     }
+    // TODO: else explode?
 }
 
 {{#modelNamespaceDeclarations}}

@@ -9,6 +9,10 @@
 {{#imports}}{{{this}}}
 {{/imports}}
 
+{{! ---------------------------------------------------------------------- }}
+{{! the model struct }}
+{{! ---------------------------------------------------------------------- }}
+
 {{#modelNamespaceDeclarations}}
 namespace {{this}} {
 {{/modelNamespaceDeclarations}}
@@ -54,25 +58,16 @@ struct {{classname}} {
 {{/hasOptional}}
 };
 
-void to_json(nlohmann::json& j, const {{classname}}& obj) {
-    j = nlohmann::json{
-{{#vars}}        {"{{baseName}}", obj.{{baseName}}},
-{{/vars}}
-    };
-}
-
-void from_json(const nlohmann::json& j, {{classname}}& obj) {
-{{#requiredVars}}    j.at("{{baseName}}").get_to(obj.{{baseName}});
-{{/requiredVars}}
-{{#optionalVars}}    detail::to_optional(j, "{{baseName}}", obj.{{baseName}});
-{{/optionalVars}}
-}
-
 {{#modelNamespaceDeclarations}}
 }  // namespace {{this}}
 {{/modelNamespaceDeclarations}}
 
+{{! ---------------------------------------------------------------------- }}
+{{! adl_serializer specializations for enums in this model }}
+{{! ---------------------------------------------------------------------- }}
+
 {{#hasEnums}}
+{{! adl_serializer specializations need to live in nlohmann namespace }}
 namespace nlohmann {
 
 {{#vars}}
@@ -118,6 +113,35 @@ struct adl_serializer<{{#modelNamespaceDeclarations}}{{this}}::{{/modelNamespace
 {{/vars}}
 } // namespace nlohmann
 {{/hasEnums}}
+
+{{! ---------------------------------------------------------------------- }}
+{{! to_json and from_json for all fields in this model }}
+{{! ---------------------------------------------------------------------- }}
+
+{{! to_ and from_json need to live in the model namespace }}
+{{! define them after the adl_serializer specialization they will use, though }}
+{{#modelNamespaceDeclarations}}
+namespace {{this}} {
+{{/modelNamespaceDeclarations}}
+
+void to_json(nlohmann::json& j, const {{classname}}& obj) {
+    j = nlohmann::json{
+{{#vars}}        {"{{baseName}}", obj.{{baseName}}},
+{{/vars}}
+    };
+}
+
+void from_json(const nlohmann::json& j, {{classname}}& obj) {
+{{#requiredVars}}    j.at("{{baseName}}").get_to(obj.{{baseName}});
+{{/requiredVars}}
+{{#optionalVars}}    detail::to_optional(j, "{{baseName}}", obj.{{baseName}});
+{{/optionalVars}}
+}
+
+{{#modelNamespaceDeclarations}}
+}  // namespace {{this}}
+{{/modelNamespaceDeclarations}}
+
 
 #endif /* {{modelHeaderGuardPrefix}}_{{classname}}_H_ */
 {{/model}}
