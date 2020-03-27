@@ -9,6 +9,13 @@ if [ ! -f openapi-generator-cli.jar ]; then
     -O openapi-generator-cli.jar
 fi
 
+command -v clang-format >/dev/null
+if [ $? -eq 0 ]; then
+    echo "found clang-format"
+    export CPP_POST_PROCESS_FILE="$(which clang-format) -i -style=file -fallback-style=google"
+    export FORMAT_FLAG="--enable-post-process-file"
+fi
+
 # run the generator for our yaml
 java -cp ./openapi-generator-cli.jar:./target/cpp-modern-json-openapi-generator-1.0.0.jar \
-org.openapitools.codegen.OpenAPIGenerator generate -DdebugModels -g cpp-modern-json -i petstore.yaml -o ./generated
+org.openapitools.codegen.OpenAPIGenerator generate ${FORMAT_FLAG} -g cpp-modern-json -i petstore.yaml -o ./generated
