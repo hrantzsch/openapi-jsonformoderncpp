@@ -40,20 +40,12 @@ struct {{classname}} {
 {{/hasEnums}}
 
 {{#hasRequired}}    // required fields
-{{#requiredVars}}
-{{^isEnum}}    {{{datatype}}} {{baseName}};
-{{/isEnum}}
-{{#isEnum}}    {{enumName}} {{baseName}};
-{{/isEnum}}
+{{#requiredVars}}    {{{datatypeWithEnum}}} {{baseName}};
 {{/requiredVars}}
 {{/hasRequired}}
 
 {{#hasOptional}}    // optional fields
-{{#optionalVars}}
-{{^isEnum}}    std::optional<{{{datatype}}}> {{baseName}};
-{{/isEnum}}
-{{#isEnum}}    std::optional<{{enumName}}> {{baseName}};
-{{/isEnum}}
+{{#optionalVars}}    std::optional<{{{datatypeWithEnum}}}> {{baseName}};
 {{/optionalVars}}
 {{/hasOptional}}
 };

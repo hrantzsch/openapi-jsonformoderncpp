@@ -23,6 +23,9 @@ static std::string rawPet =
       \"name\": \"myTag\"    \
     }                        \
   ],                         \
+  \"additionalInfo\": [      \
+      \"PREORDER\"           \
+  ],                         \
   \"status\": \"AVAILABLE\"  \
 }";
 
@@ -31,8 +34,11 @@ using namespace org::openapitools::model;
 
 int main() {
     auto p = json::parse(rawPet).get<Pet>();
-    std::cout << p.name << std::endl;
-    std::cout << p.category.value().name.value() << std::endl;
+    if (p.additionalInfo.has_value())
+        for (auto &v : p.additionalInfo.value())
+            std::cout << to_string(v) << std::endl;
+    else
+        std::cout << "no additional info" << std::endl;
 
     json pj = p;
     std::cout << pj << std::endl;
