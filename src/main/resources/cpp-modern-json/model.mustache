@@ -32,7 +32,7 @@ struct {{classname}} {
      * \brief {{description}}
      */
 {{/description}}
-    enum {{enumName}} {
+    enum class {{enumName}} {
 {{#allowableValues}}{{#enumVars}}        {{name}},
 {{/enumVars}}{{/allowableValues}}    };
 {{/isEnum}}
@@ -92,19 +92,16 @@ struct adl_serializer<{{#modelNamespaceDeclarations}}{{this}}::{{/modelNamespace
     }
 
     static void from_json(const json& j, {{classname}}::{{enumName}}& value) {
-        // TODO: there are some iffy assumptions about casing here
-        const std::string s = j.get<std::string>();
-        std::string all_caps;
-        std::transform(s.cbegin(), s.cend(), std::back_inserter(all_caps), ::toupper);
-
+        auto s = j.get_ref<const json::string_t&>();
 {{#allowableValues}}
 {{#enumVars}}
-        if (all_caps == "{{name}}") {
+        if (s == "{{name}}") {
             value = {{classname}}::{{enumName}}::{{name}};
             return;
         }
 {{/enumVars}}
 {{/allowableValues}}
+
         throw {{#modelNamespaceDeclarations}}{{this}}::{{/modelNamespaceDeclarations}}invalid_enum_value(s);
     }
 };

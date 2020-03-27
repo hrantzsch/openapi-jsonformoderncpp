@@ -34,18 +34,30 @@ namespace nlohmann {
 template <typename T>
 struct adl_serializer<std::optional<T>> {
     static void to_json(json& j, const std::optional<T>& opt) {
-        opt == std::nullopt ? j = nullptr : j = *opt;
+        if (opt == std::nullopt) {
+            j = nullptr;
+        } else {
+            j = *opt;
+        }
     }
 
     static void from_json(const json& j, std::optional<T>& opt) {
-        j.is_null() ? opt = std::nullopt : opt = j.get<T>();
+        if (j.is_null()) {
+            opt = std::nullopt;
+        } else {
+            opt = j.get<T>();
+        }
     }
 };
 
 template <typename T>
 struct adl_serializer<std::shared_ptr<T>> {
     static void to_json(json& j, const std::shared_ptr<T>& ptr) {
-        j = ptr ? *ptr : nullptr;
+        if (ptr) {
+            j = *ptr;
+        } else {
+            j = nullptr;
+        }
     }
 
     static void from_json(const json& j, std::shared_ptr<T>& ptr) {
@@ -68,8 +80,9 @@ template <typename T>
 void to_optional(const nlohmann::json& j, const char* key, T& target) {
     if (j.contains(key)) {
         j.at(key).get_to(target);
+    } else {
+        target = std::nullopt;
     }
-    // TODO: else explode?
 }
 
 {{#modelNamespaceDeclarations}}
