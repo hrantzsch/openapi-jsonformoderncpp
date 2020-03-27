@@ -1,15 +1,15 @@
 package com.nexenio.CppModernJson;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.openapitools.codegen.*;
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.models.properties.*;
 
 import io.swagger.v3.oas.models.media.ArraySchema;
 import org.openapitools.codegen.utils.ModelUtils;
 import org.openapitools.codegen.languages.AbstractCppCodegen;
 
 import java.util.*;
-import java.io.File;
 
 public class CppModernJsonGenerator extends AbstractCppCodegen implements CodegenConfig {
 
@@ -231,6 +231,16 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
         }
 
         return codegenModel;
+    }
+
+    /**
+     * Enum name for a property. This is used to set datatypeWithEnum
+     *
+     * @return the capitalized `name` of the property
+     */
+    @Override
+    public String toEnumName(CodegenProperty property) {
+        return StringUtils.capitalize(property.name);
     }
 
     /**
