@@ -1,0 +1,65 @@
+{{#models}}{{#model}}#include "{{classname}}.h"
+
+#include "serialization.h"
+#include "utility.h"
+
+{{#modelNamespaceDeclarations}}
+namespace {{this}} {
+{{/modelNamespaceDeclarations}}
+
+void {{classname}}::to_json(::nlohmann::json& j, const {{classname}}& obj) {
+    j = ::nlohmann::json{
+{{#vars}}        {"{{baseName}}", obj.{{baseName}}},
+{{/vars}}
+    };
+}
+
+void {{classname}}::from_json(const ::nlohmann::json& j, {{classname}}& obj) {
+{{#requiredVars}}    j.at("{{baseName}}").get_to(obj.{{baseName}});
+{{/requiredVars}}
+{{#optionalVars}}    detail::to_optional(j, "{{baseName}}", obj.{{baseName}});
+{{/optionalVars}}
+}
+
+
+{{#hasEnums}}{{#vars}}{{#isEnum}}
+std::string {{classname}}::to_string({{classname}}::{{enumName}} value) {
+    switch (value) {
+{{#allowableValues}}
+{{#enumVars}}
+    case {{classname}}::{{enumName}}::{{name}}:
+        return "{{name}}";
+{{/enumVars}}
+{{/allowableValues}}
+    }
+    UNREACHABLE_CODE
+}
+
+void {{classname}}::to_json(::nlohmann::json& j, const {{classname}}::{{enumName}}& value) {
+    j = {{classname}}::to_string(value);
+}
+
+void {{classname}}::from_json(const ::nlohmann::json& j, {{classname}}::{{enumName}}& value) {
+    auto str = j.get_ref<const ::nlohmann::json::string_t&>();
+{{#allowableValues}}
+{{#enumVars}}
+    if (str == "{{name}}") {
+        value = {{classname}}::{{enumName}}::{{name}};
+        return;
+    }
+{{/enumVars}}
+{{/allowableValues}}
+    throw invalid_enum_value(str);
+}
+
+{{/isEnum}}
+{{/vars}}
+{{/hasEnums}}
+
+
+{{#modelNamespaceDeclarations}}
+}
+{{/modelNamespaceDeclarations}}
+
+{{/model}}
+{{/models}}

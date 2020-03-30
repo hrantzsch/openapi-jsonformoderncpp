@@ -1,33 +1,10 @@
-#ifndef DTOGEN_SERIALIZATION_H
-#define DTOGEN_SERIALIZATION_H
+#ifndef {{modelHeaderGuardPrefix}}__SERIALIZATION_H_
+#define {{modelHeaderGuardPrefix}}__SERIALIZATION_H_
 
 #include <memory>
 #include <optional>
 
 #include "nlohmann/json.hpp"
-
-// TODO: move elsewhere
-#ifdef __clang__
-#define UNREACHABLE_CODE __builtin_unreachable();
-#elif __GNUC__
-#define UNREACHABLE_CODE __builtin_unreachable();
-#elif _MSC_VER
-#define UNREACHABLE_CODE __assume(0);
-#endif
-
-// TODO: move elsewhere
-#include <stdexcept>
-{{#modelNamespaceDeclarations}}
-namespace {{this}} {
-{{/modelNamespaceDeclarations}}
-class invalid_enum_value : public std::runtime_error {
-    public:
-        using std::runtime_error::runtime_error;
-};
-{{#modelNamespaceDeclarations}}
-}  // namespace {{this}}
-{{/modelNamespaceDeclarations}}
-
 
 namespace nlohmann {
 
@@ -71,24 +48,4 @@ struct adl_serializer<std::shared_ptr<T>> {
 
 }  // namespace nlohmann
 
-{{#modelNamespaceDeclarations}}
-namespace {{this}} {
-{{/modelNamespaceDeclarations}}
-namespace detail {
-
-template <typename T>
-void to_optional(const nlohmann::json& j, const char* key, T& target) {
-    if (j.contains(key)) {
-        j.at(key).get_to(target);
-    } else {
-        target = std::nullopt;
-    }
-}
-
-{{#modelNamespaceDeclarations}}
-} // namespace {{this}}
-{{/modelNamespaceDeclarations}}
-} // namespace detail
-
-
-#endif // DTOGEN_SERIALIZATION_H
+#endif // {{modelHeaderGuardPrefix}}__SERIALIZATION_H_

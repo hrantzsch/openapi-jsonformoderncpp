@@ -77,7 +77,8 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     outputFolder = "generated-code/cpp-modern-json";
 
     /** Models. */
-    modelTemplateFiles.put("model.mustache", ".h");
+    modelTemplateFiles.put("model-header.mustache", ".h");
+    modelTemplateFiles.put("model-source.mustache", ".cpp");
 
     /** Template Location. This is the location which templates will be read from. */
     templateDir = "cpp-modern-json";
@@ -93,6 +94,7 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     // (<file>, <destination folder relative to `outputFolder`>, <target filename>)
     supportingFiles.add(new SupportingFile("nlohmann/json.hpp", "nlohmann", "json.hpp"));
     supportingFiles.add(new SupportingFile("serialization.mustache", "", "serialization.h"));
+    supportingFiles.add(new SupportingFile("utility.mustache", "", "utility.h"));
     supportingFiles.add(new SupportingFile("test.cpp", "", "test.cpp"));
 
     /**

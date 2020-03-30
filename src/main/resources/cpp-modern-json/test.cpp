@@ -30,7 +30,7 @@ static std::string rawPet =
 }";
 
 using json = nlohmann::json;
-using namespace org::openapitools::model;
+using namespace generated::dtos::models;
 
 int main() {
     auto p = json::parse(rawPet).get<Pet>();

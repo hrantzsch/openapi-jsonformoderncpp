@@ -1,7 +1,7 @@
 {{#models}}{{#model}}#ifndef {{modelHeaderGuardPrefix}}_{{classname}}_H_
 #define {{modelHeaderGuardPrefix}}_{{classname}}_H_
 
-#include "serialization.h"
+#include "nlohmann/json.hpp"
 
 {{#hasOptional}}#include <optional>
 {{/hasOptional}}
@@ -25,7 +25,9 @@ namespace {{this}} {
  */
 {{/description}}
 struct {{classname}} {
-    static const char *dtoName() { return "swagger::dto::{{classname}}"; }
+
+    static void to_json(::nlohmann::json& j, const {{classname}}& obj);
+    static void from_json(const ::nlohmann::json& j, {{classname}}& obj);
 
 {{#hasEnums}}    // enums
 {{#vars}}{{#isEnum}}{{#description}}    /**
@@ -35,6 +37,11 @@ struct {{classname}} {
     enum class {{enumName}} {
 {{#allowableValues}}{{#enumVars}}        {{name}},
 {{/enumVars}}{{/allowableValues}}    };
+
+    static std::string to_string({{enumName}} value);
+    static void to_json(::nlohmann::json& j, const {{enumName}}& value);
+    static void from_json(const ::nlohmann::json& j, {{enumName}}& value);
+
 {{/isEnum}}
 {{/vars}}
 {{/hasEnums}}
@@ -58,15 +65,7 @@ struct {{classname}} {
 {{#vars}}
 {{#isEnum}}
 inline std::string to_string({{classname}}::{{enumName}} value) {
-    switch (value) {
-{{#allowableValues}}
-{{#enumVars}}
-    case {{classname}}::{{enumName}}::{{name}}:
-        return "{{name}}";
-{{/enumVars}}
-{{/allowableValues}}
-    }
-    UNREACHABLE_CODE
+    return {{classname}}::to_string(value);
 }
 
 {{/isEnum}}
@@ -74,7 +73,7 @@ inline std::string to_string({{classname}}::{{enumName}} value) {
 {{/hasEnums}}
 
 {{#modelNamespaceDeclarations}}
-}  // namespace {{this}}
+}
 {{/modelNamespaceDeclarations}}
 
 {{! ---------------------------------------------------------------------- }}
@@ -88,28 +87,18 @@ namespace nlohmann {
 {{#vars}}
 {{#isEnum}}
 template<>
-struct adl_serializer<{{#modelNamespaceDeclarations}}{{this}}::{{/modelNamespaceDeclarations}}{{classname}}::{{enumName}}> {
-    static void to_json(json& j, const {{#modelNamespaceDeclarations}}{{this}}::{{/modelNamespaceDeclarations}}{{classname}}::{{enumName}}& value) {
-        j = {{#modelNamespaceDeclarations}}{{this}}::{{/modelNamespaceDeclarations}}to_string(value);
+struct adl_serializer<{{modelNamespace}}::{{classname}}::{{enumName}}> {
+    static void to_json(json& j, const {{modelNamespace}}::{{classname}}::{{enumName}}& value) {
+        {{modelNamespace}}::{{classname}}::to_json(j, value);
     }
-
-    static void from_json(const json& j, {{#modelNamespaceDeclarations}}{{this}}::{{/modelNamespaceDeclarations}}{{classname}}::{{enumName}}& value) {
-        auto str = j.get_ref<const json::string_t&>();
-{{#allowableValues}}
-{{#enumVars}}
-        if (str == "{{name}}") {
-            value = {{#modelNamespaceDeclarations}}{{this}}::{{/modelNamespaceDeclarations}}{{classname}}::{{enumName}}::{{name}};
-            return;
-        }
-{{/enumVars}}
-{{/allowableValues}}
-        throw {{#modelNamespaceDeclarations}}{{this}}::{{/modelNamespaceDeclarations}}invalid_enum_value(str);
-        }
+    static void from_json(const json& j, {{modelNamespace}}::{{classname}}::{{enumName}}& value) {
+        {{modelNamespace}}::{{classname}}::from_json(j, value);
+    }
 };
 
 {{/isEnum}}
 {{/vars}}
-} // namespace nlohmann
+}
 {{/hasEnums}}
 
 {{! ---------------------------------------------------------------------- }}
@@ -122,22 +111,16 @@ struct adl_serializer<{{#modelNamespaceDeclarations}}{{this}}::{{/modelNamespace
 namespace {{this}} {
 {{/modelNamespaceDeclarations}}
 
-void to_json(nlohmann::json& j, const {{classname}}& obj) {
-    j = nlohmann::json{
-{{#vars}}        {"{{baseName}}", obj.{{baseName}}},
-{{/vars}}
-    };
+inline void to_json(nlohmann::json& j, const {{classname}}& obj) {
+    {{classname}}::to_json(j, obj);
 }
 
-void from_json(const nlohmann::json& j, {{classname}}& obj) {
-{{#requiredVars}}    j.at("{{baseName}}").get_to(obj.{{baseName}});
-{{/requiredVars}}
-{{#optionalVars}}    detail::to_optional(j, "{{baseName}}", obj.{{baseName}});
-{{/optionalVars}}
+inline void from_json(const nlohmann::json& j, {{classname}}& obj) {
+    {{classname}}::from_json(j, obj);
 }
 
 {{#modelNamespaceDeclarations}}
-}  // namespace {{this}}
+}
 {{/modelNamespaceDeclarations}}
 
 
