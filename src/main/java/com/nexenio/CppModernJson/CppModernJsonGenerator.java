@@ -73,43 +73,17 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
   public CppModernJsonGenerator() {
     super();
 
-    // set the output folder here
+    /** Output folder. */
     outputFolder = "generated-code/cpp-modern-json";
 
-    /**
-     * Models. You can write model files using the modelTemplateFiles map. if you want to create one
-     * template for file, you can do so here. for multiple files for model, just put another entry
-     * in the `modelTemplateFiles` with a different extension
-     */
+    /** Models. */
     modelTemplateFiles.put("model.mustache", ".h");
 
-    /**
-     * Template Location. This is the location which templates will be read from. The generator will
-     * use the resource stream to attempt to read the templates.
-     */
+    /** Template Location. This is the location which templates will be read from. */
     templateDir = "cpp-modern-json";
 
-    /** Model Package. Optional, if needed, this can be used in templates */
+    /** Model Package. Used to determine the namespace of models. Override using -model-package */
     modelPackage = "org.openapitools.model";
-
-    /** Reserved words. Override this with reserved words specific to your language */
-    reservedWords =
-        new HashSet<String>(
-            // Arrays.asList(
-            //   "sample1",  // replace with static values
-            //   "sample2")
-            );
-
-    /**
-     * Additional Properties. These values can be passed to the templates and are available in
-     * models, apis, and supporting files
-     */
-    // from template
-    additionalProperties.put("apiVersion", apiVersion);
-
-    // from Alex
-    additionalProperties.put("modelNamespaceDeclarations", modelPackage.split("\\."));
-    additionalProperties.put("modelNamespace", modelPackage.replaceAll("\\.", "::"));
 
     /**
      * Supporting Files. You can write single files for the generator with the entire object tree
@@ -144,37 +118,6 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     importMapping.put("std::string", "#include <string>");
   }
 
-  @Override
-  public void processOpts() {
-    super.processOpts();
-
-    if (additionalProperties.containsKey(DEFAULT_INCLUDE)) {
-      defaultInclude = additionalProperties.get(DEFAULT_INCLUDE).toString();
-    }
-
-    // if (additionalProperties.containsKey(RESERVED_WORD_PREFIX_OPTION)) {
-    //     reservedWordPrefix = (String) additionalProperties.get(RESERVED_WORD_PREFIX_OPTION);
-    // }
-
-    additionalProperties.put("modelNamespaceDeclarations", modelPackage.split("\\."));
-    additionalProperties.put("modelNamespace", modelPackage.replaceAll("\\.", "::"));
-    additionalProperties.put(
-        "modelHeaderGuardPrefix", modelPackage.replaceAll("\\.", "_").toUpperCase(Locale.ROOT));
-    additionalProperties.put("defaultInclude", defaultInclude);
-    //     // additionalProperties.put(RESERVED_WORD_PREFIX_OPTION, reservedWordPrefix);
-  }
-
-  /**
-   * Escapes a reserved word as defined in the `reservedWords` array. Handle escaping those terms
-   * here. This logic is only called if a variable matches the reserved words
-   *
-   * @return the escaped term
-   */
-  @Override
-  public String escapeReservedWord(String name) {
-    return "_" + name; // add an underscore to the name
-  }
-
   /**
    * Location to write model files. You can use the modelPackage() as defined when the class is
    * instantiated
@@ -183,6 +126,18 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     return outputFolder;
     // return outputFolder + "/" + sourceFolder + "/" + modelPackage().replace('.',
     // File.separatorChar);
+  }
+
+  @Override
+  public void processOpts() {
+    super.processOpts();
+
+    /** Additional Properties. These values can be passed to the templates. */
+    additionalProperties.put("apiVersion", apiVersion);
+    additionalProperties.put("modelNamespaceDeclarations", modelPackage.split("\\."));
+    additionalProperties.put("modelNamespace", modelPackage.replaceAll("\\.", "::"));
+    additionalProperties.put(
+        "modelHeaderGuardPrefix", modelPackage.replaceAll("\\.", "_").toUpperCase(Locale.ROOT));
   }
 
   @Override
