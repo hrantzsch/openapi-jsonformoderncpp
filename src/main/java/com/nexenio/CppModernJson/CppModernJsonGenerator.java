@@ -8,8 +8,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.languages.AbstractCppCodegen;
 import org.openapitools.codegen.utils.ModelUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CppModernJsonGenerator extends AbstractCppCodegen implements CodegenConfig {
+  private static final Logger LOGGER = LoggerFactory.getLogger(CppModernJsonGenerator.class);
+
   // TODO this will allow us to change the include path of json.h as an option
   public static final String DEFAULT_INCLUDE = "defaultInclude";
 
@@ -24,7 +28,7 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
   protected String packageName = "org.openapitools";
 
   protected String packageToPath(String packageName) {
-      return packageName.replace('.', File.separatorChar);
+    return packageName.replace('.', File.separatorChar);
   }
 
   /**
@@ -93,14 +97,14 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     /** Template Location. This is the location which templates will be read from. */
     templateDir = "cpp-modern-json";
 
-    /** Language Specific Primitives. These types will not trigger imports by the client generator
+    /**
+     * Language Specific Primitives. These types will not trigger imports by the client generator
      */
     languageSpecificPrimitives =
         new HashSet<String>(
             Arrays.asList("int", "char", "bool", "long", "float", "double", "int32_t", "int64_t"));
 
-    /** Type Mappings. From openAPI types to C++ types
-     */
+    /** Type Mappings. From openAPI types to C++ types */
     typeMapping = new HashMap<String, String>();
 
     typeMapping.put("ByteArray", "std::string");
@@ -120,8 +124,7 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     typeMapping.put("long", "int64_t");
     typeMapping.put("number", "double");
 
-    /** Import Mappings. Include statements for std types
-     */
+    /** Import Mappings. Include statements for std types */
     super.importMapping = new HashMap<String, String>();
     importMapping.put("std::vector", "#include <vector>");
     importMapping.put("std::map", "#include <map>");
@@ -175,6 +178,15 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     additionalProperties.put("packagePath", packagePath);
     additionalProperties.put("modelPath", packageToPath(modelPackage));
 
+    // {{scmUrl}}
+    //
+    // mandatory in order to use the conanfile
+    //
+    if (!additionalProperties.containsKey(CodegenConstants.SCM_URL)) {
+      LOGGER.warn(
+          "SCM URL is not set. conanfile will be broken. Please pass '-p scmUrl=https://...' to the generator.");
+    }
+
     /**
      * Supporting Files. You can write single files for the generator with the entire object tree
      * available. If the input file has a suffix of `.mustache it will be processed by the template
@@ -182,24 +194,22 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
      */
     // (<file>, <destination folder relative to `outputFolder`>, <target filename>)
     supportingFiles.add(
-        new SupportingFile("nlohmann/json.hpp", packagePath + File.separator + "nlohmann", "json.hpp"));
+        new SupportingFile(
+            "nlohmann/json.hpp", packagePath + File.separator + "nlohmann", "json.hpp"));
     supportingFiles.add(
         new SupportingFile("serialization.mustache", packagePath, "serialization.h"));
     supportingFiles.add(new SupportingFile("utility.mustache", packagePath, "utility.h"));
 
     supportingFiles.add(new SupportingFile("CMakeLists.mustache", "", "CMakeLists.txt"));
-    supportingFiles.add(new SupportingFile("test.cpp", "", "test.cpp"));
+    supportingFiles.add(new SupportingFile("conanfile.mustache", "", "conanfile.py"));
   }
 
-  /**
-   * Convert model name to file name.
-   *
-   * Overridden from parent to NOT "camelize" the name, but return only capitalize it.
-   * This is needed to simply `#import {{classname}}.h` in source files.
-   */
+  /** Convert model name to file name. Returns the capitalized name */
+  // Overridden from parent to not "camelize" but only capitalize the name. This is needed to simply
+  // `#import {{classname}}.h` in source files.
   @Override
   public String toModelFilename(String name) {
-      return StringUtils.capitalize(name);
+    return StringUtils.capitalize(name);
   }
 
   @Override
