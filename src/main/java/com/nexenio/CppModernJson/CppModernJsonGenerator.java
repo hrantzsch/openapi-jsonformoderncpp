@@ -187,6 +187,7 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
         new SupportingFile("serialization.mustache", packagePath, "serialization.h"));
     supportingFiles.add(new SupportingFile("utility.mustache", packagePath, "utility.h"));
 
+    supportingFiles.add(new SupportingFile("CMakeLists.mustache", "", "CMakeLists.txt"));
     supportingFiles.add(new SupportingFile("test.cpp", "", "test.cpp"));
   }
 

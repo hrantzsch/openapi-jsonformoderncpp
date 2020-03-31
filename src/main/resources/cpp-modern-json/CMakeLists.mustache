@@ -1,0 +1,23 @@
+cmake_minimum_required(VERSION 3.10)
+
+# read template variables into cmake variables
+set(PROJECT_NAME "{{projectName}}")
+set(PACKAGE_NAMESPACE "{{packagePath}}")
+set(MODELS_NAMESPACE "{{modelPath}}")
+
+project(${PROJECT_NAME})
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(DTO_LIBRARY_NAME "${PROJECT_NAME}-lib")
+
+file(GLOB SOURCE_FILES "${PACKAGE_NAMESPACE}/*.cpp"
+                       "${MODELS_NAMESPACE}/*.cpp")
+
+add_library (${DTO_LIBRARY_NAME} ${SOURCE_FILES})
+target_include_directories(${DTO_LIBRARY_NAME} PUBLIC "${PACKAGE_NAMESPACE}")
+
+set(EXECUTABLE_NAME "${PROJECT_NAME}-test")
+add_executable(${EXECUTABLE_NAME} "test.cpp")
+target_link_libraries(${EXECUTABLE_NAME} ${DTO_LIBRARY_NAME})
