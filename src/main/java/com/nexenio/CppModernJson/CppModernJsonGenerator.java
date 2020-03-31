@@ -104,16 +104,29 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
         new HashSet<String>(
             Arrays.asList("int", "char", "bool", "long", "float", "double", "int32_t", "int64_t"));
 
+    /** Type Mappings. From openAPI types to C++ types
+     */
     typeMapping = new HashMap<String, String>();
-    typeMapping.put("string", "std::string");
-    typeMapping.put("array", "std::vector");
-    typeMapping.put("map", "std::map");
 
+    typeMapping.put("ByteArray", "std::string");
+    typeMapping.put("date", "std::string");
+    typeMapping.put("DateTime", "std::string");
+    typeMapping.put("file", "std::string");
+    typeMapping.put("URI", "std::string");
+    typeMapping.put("UUID", "std::string");
+
+    typeMapping.put("array", "std::vector");
+    typeMapping.put("binary", "std::string");
+    typeMapping.put("map", "std::map");
+    typeMapping.put("string", "std::string");
+
+    typeMapping.put("boolean", "bool");
     typeMapping.put("integer", "int32_t");
     typeMapping.put("long", "int64_t");
     typeMapping.put("number", "double");
-    typeMapping.put("boolean", "bool");
 
+    /** Import Mappings. Include statements for std types
+     */
     super.importMapping = new HashMap<String, String>();
     importMapping.put("std::vector", "#include <vector>");
     importMapping.put("std::map", "#include <map>");
