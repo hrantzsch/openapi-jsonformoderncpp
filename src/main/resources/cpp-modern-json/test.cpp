@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include "Pet.h"
+#include "generated/dtos/models/Pet.h"
 
 static std::string rawPet =
     "{                       \

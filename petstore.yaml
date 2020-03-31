@@ -675,7 +675,7 @@ components:
           description: User Status
       xml:
         name: User
-    Tag:
+    Pet_Tag:
       title: Pet Tag
       description: A tag for a pet
       type: object
@@ -686,7 +686,7 @@ components:
         name:
           type: string
       xml:
-        name: Tag
+        name: Pet_Tag
     Pet:
       title: a Pet
       description: A pet for sale in the pet store
@@ -716,7 +716,7 @@ components:
             name: tag
             wrapped: true
           items:
-            $ref: '#/components/schemas/Tag'
+            $ref: '#/components/schemas/Pet_Tag'
         status:
           type: string
           description: pet status in the store

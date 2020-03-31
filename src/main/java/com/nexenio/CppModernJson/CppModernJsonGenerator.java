@@ -2,6 +2,7 @@ package com.nexenio.CppModernJson;
 
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
+import java.io.File;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
@@ -12,10 +13,19 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
   // TODO this will allow us to change the include path of json.h as an option
   public static final String DEFAULT_INCLUDE = "defaultInclude";
 
+  protected String projectName = "cpp-modern-json";
+
   // source folder where to write the files
-  protected String sourceFolder = "src";
-  protected String apiVersion = "1.0.0";
+  protected String modelsFolderName = "models";
+
   protected String defaultInclude = "#include <nlohmann/json.h>";
+
+  protected String apiVersion = "14";
+  protected String packageName = "org.openapitools";
+
+  protected String packageToPath(String packageName) {
+      return packageName.replace('.', File.separatorChar);
+  }
 
   /**
    * Configures the type of generator.
@@ -34,7 +44,7 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
    * @return the friendly name for the generator
    */
   public String getName() {
-    return "cpp-modern-json";
+    return projectName;
   }
 
   /** Provides an opportunity to inspect and modify operation data before the code is generated. */
@@ -83,22 +93,7 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     /** Template Location. This is the location which templates will be read from. */
     templateDir = "cpp-modern-json";
 
-    /** Model Package. Used to determine the namespace of models. Override using -model-package */
-    modelPackage = "org.openapitools.model";
-
-    /**
-     * Supporting Files. You can write single files for the generator with the entire object tree
-     * available. If the input file has a suffix of `.mustache it will be processed by the template
-     * engine. Otherwise, it will be copied
-     */
-    // (<file>, <destination folder relative to `outputFolder`>, <target filename>)
-    supportingFiles.add(new SupportingFile("nlohmann/json.hpp", "nlohmann", "json.hpp"));
-    supportingFiles.add(new SupportingFile("serialization.mustache", "", "serialization.h"));
-    supportingFiles.add(new SupportingFile("utility.mustache", "", "utility.h"));
-    supportingFiles.add(new SupportingFile("test.cpp", "", "test.cpp"));
-
-    /**
-     * Language Specific Primitives. These types will not trigger imports by the client generator
+    /** Language Specific Primitives. These types will not trigger imports by the client generator
      */
     languageSpecificPrimitives =
         new HashSet<String>(
@@ -131,28 +126,79 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     importMapping.put("std::vector", "#include <vector>");
     importMapping.put("std::map", "#include <map>");
     importMapping.put("std::string", "#include <string>");
-  }
 
-  /**
-   * Location to write model files. You can use the modelPackage() as defined when the class is
-   * instantiated
-   */
-  public String modelFileFolder() {
-    return outputFolder;
-    // return outputFolder + "/" + sourceFolder + "/" + modelPackage().replace('.',
-    // File.separatorChar);
+    addOption(CodegenConstants.PROJECT_NAME, "project name", projectName);
   }
 
   @Override
   public void processOpts() {
     super.processOpts();
 
-    /** Additional Properties. These values can be passed to the templates. */
+    // {{apiVersion}}
+    //
     additionalProperties.put("apiVersion", apiVersion);
-    additionalProperties.put("modelNamespaceDeclarations", modelPackage.split("\\."));
+
+    // {{projectName}}
+    //
+    if (additionalProperties.containsKey(CodegenConstants.PROJECT_NAME)) {
+      projectName = (String) additionalProperties.get(CodegenConstants.PROJECT_NAME);
+    } else {
+      additionalProperties.put(CodegenConstants.PROJECT_NAME, projectName);
+    }
+
+    // {{packageName}}
+    //
+    if (additionalProperties.containsKey(CodegenConstants.PACKAGE_NAME)) {
+      packageName = (String) additionalProperties.get(CodegenConstants.PACKAGE_NAME);
+    } else {
+      additionalProperties.put(CodegenConstants.PACKAGE_NAME, packageName);
+    }
+
+    // {{modelPackage}}, {{modelNamespace}}, {{modelNamespaceDeclarations}},
+    // {{modelHeaderGuardPrefix}}
+    //
+    // {{modelPackage}} defaults to {{packageName}}.models (others accordingly)
+    // override using `--model-package`
+    //
+    if (additionalProperties.containsKey(CodegenConstants.MODEL_PACKAGE)) {
+      modelPackage = (String) additionalProperties.get(CodegenConstants.MODEL_PACKAGE);
+    } else {
+      modelPackage = packageName + "." + modelsFolderName;
+      additionalProperties.put(CodegenConstants.MODEL_PACKAGE, modelPackage);
+    }
     additionalProperties.put("modelNamespace", modelPackage.replaceAll("\\.", "::"));
+    additionalProperties.put("modelNamespaceDeclarations", modelPackage.split("\\."));
     additionalProperties.put(
         "modelHeaderGuardPrefix", modelPackage.replaceAll("\\.", "_").toUpperCase(Locale.ROOT));
+
+    String packagePath = packageToPath(packageName);
+    additionalProperties.put("packagePath", packagePath);
+    additionalProperties.put("modelPath", packageToPath(modelPackage));
+
+    /**
+     * Supporting Files. You can write single files for the generator with the entire object tree
+     * available. If the input file has a suffix of `.mustache it will be processed by the template
+     * engine. Otherwise, it will be copied
+     */
+    // (<file>, <destination folder relative to `outputFolder`>, <target filename>)
+    supportingFiles.add(
+        new SupportingFile("nlohmann/json.hpp", packagePath + File.separator + "nlohmann", "json.hpp"));
+    supportingFiles.add(
+        new SupportingFile("serialization.mustache", packagePath, "serialization.h"));
+    supportingFiles.add(new SupportingFile("utility.mustache", packagePath, "utility.h"));
+
+    supportingFiles.add(new SupportingFile("test.cpp", "", "test.cpp"));
+  }
+
+  /**
+   * Convert model name to file name.
+   *
+   * Overridden from parent to NOT "camelize" the name, but return only capitalize it.
+   * This is needed to simply `#import {{classname}}.h` in source files.
+   */
+  @Override
+  public String toModelFilename(String name) {
+      return StringUtils.capitalize(name);
   }
 
   @Override
@@ -171,7 +217,7 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     if (importMapping.containsKey(name)) {
       return importMapping.get(name);
     } else {
-      return "#include \"" + toModelFilename(name) + ".h\"";
+      return "#include \"" + name + ".h\"";
     }
   }
 

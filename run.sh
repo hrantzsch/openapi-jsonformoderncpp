@@ -20,5 +20,5 @@ fi
 java -cp ./openapi-generator-cli.jar:./target/cpp-modern-json-openapi-generator-1.0.0.jar \
 org.openapitools.codegen.OpenAPIGenerator generate ${FORMAT_FLAG} \
 -g cpp-modern-json \
---model-package=generated.dtos.models \
+--package-name=generated.dtos \
 -i petstore.yaml -o ./generated
