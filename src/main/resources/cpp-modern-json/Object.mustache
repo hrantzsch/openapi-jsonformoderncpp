@@ -1,0 +1,34 @@
+#ifndef {{modelHeaderGuardPrefix}}_OBJECT_H_
+#define {{modelHeaderGuardPrefix}}_OBJECT_H_
+
+/*
+ * Note: This is a stub. `Object` does not do anything, has no fields, and will
+ * not work. It merely makes include statements and calls to to_/from_json in
+ * other models compile.
+ */
+
+#include "nlohmann/json.hpp"
+
+{{#modelNamespaceDeclarations}}
+namespace {{this}} {
+{{/modelNamespaceDeclarations}}
+
+struct Object {
+    static void to_json(::nlohmann::json& j, const Object& obj) {}
+    static void from_json(const ::nlohmann::json& j, Object& obj) {}
+};
+
+inline void to_json(nlohmann::json& j, const Object& obj) {
+  Object::to_json(j, obj);
+}
+
+inline void from_json(const nlohmann::json& j, Object& obj) {
+  Object::from_json(j, obj);
+}
+
+{{#modelNamespaceDeclarations}}
+}
+{{/modelNamespaceDeclarations}}
+
+
+#endif /* {{modelHeaderGuardPrefix}}_OBJECT_H_ */

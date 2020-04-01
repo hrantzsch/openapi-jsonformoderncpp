@@ -174,10 +174,6 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     additionalProperties.put(
         "modelHeaderGuardPrefix", modelPackage.replaceAll("\\.", "_").toUpperCase(Locale.ROOT));
 
-    String packagePath = packageToPath(packageName);
-    additionalProperties.put("packagePath", packagePath);
-    additionalProperties.put("modelPath", packageToPath(modelPackage));
-
     // {{scmUrl}}
     //
     // mandatory in order to use the conanfile
@@ -193,15 +189,25 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
      * engine. Otherwise, it will be copied
      */
     // (<file>, <destination folder relative to `outputFolder`>, <target filename>)
+
+    String packagePath = packageToPath(packageName);
+    additionalProperties.put("packagePath", packagePath);
+
+    String modelPath = packageToPath(modelPackage);
+    additionalProperties.put("modelPath", modelPath);
+
     supportingFiles.add(
         new SupportingFile(
             "nlohmann/json.hpp", packagePath + File.separator + "nlohmann", "json.hpp"));
+
     supportingFiles.add(
         new SupportingFile("serialization.mustache", packagePath, "serialization.h"));
     supportingFiles.add(new SupportingFile("utility.mustache", packagePath, "utility.h"));
 
     supportingFiles.add(new SupportingFile("CMakeLists.mustache", "", "CMakeLists.txt"));
     supportingFiles.add(new SupportingFile("conanfile.mustache", "", "conanfile.py"));
+
+    supportingFiles.add(new SupportingFile("Object.mustache", modelPath, "Object.h"));
   }
 
   /** Convert model name to file name. Returns the capitalized name */
