@@ -14,15 +14,10 @@ import org.slf4j.LoggerFactory;
 public class CppModernJsonGenerator extends AbstractCppCodegen implements CodegenConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(CppModernJsonGenerator.class);
 
-  // TODO this will allow us to change the include path of json.h as an option
-  public static final String DEFAULT_INCLUDE = "defaultInclude";
-
   protected String projectName = "cpp-modern-json";
 
   // source folder where to write the files
   protected String modelsFolderName = "models";
-
-  protected String defaultInclude = "#include <nlohmann/json.h>";
 
   protected String apiVersion = "14";
   protected String packageName = "org.openapitools";
@@ -124,11 +119,18 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     typeMapping.put("long", "int64_t");
     typeMapping.put("number", "double");
 
+    // raw, nested json objects
+    typeMapping.put("object", "::nlohmann::json");
+
     /** Import Mappings. Include statements for std types */
     super.importMapping = new HashMap<String, String>();
     importMapping.put("std::vector", "#include <vector>");
     importMapping.put("std::map", "#include <map>");
     importMapping.put("std::string", "#include <string>");
+
+    // Models containing an 'object' will attempt to import "::nlohmann::json" (see type-mapping
+    // above). Don't.
+    importMapping.put("::nlohmann::json", "");
 
     addOption(CodegenConstants.PROJECT_NAME, "project name", projectName);
   }
@@ -206,8 +208,6 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
 
     supportingFiles.add(new SupportingFile("CMakeLists.mustache", "", "CMakeLists.txt"));
     supportingFiles.add(new SupportingFile("conanfile.mustache", "", "conanfile.py"));
-
-    supportingFiles.add(new SupportingFile("Object.mustache", modelPath, "Object.h"));
   }
 
   /** Convert model name to file name. Returns the capitalized name */
