@@ -5,7 +5,7 @@ import os
 class GeneratedDtos(ConanFile):
     name = "{{projectName}}"
     homepage = "{{scmUrl}}"
-    generators = "cmake"
+    generators = "cmake_find_package"
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False]}
     default_options = {"shared": True}
@@ -14,7 +14,7 @@ class GeneratedDtos(ConanFile):
     _build_subfolder = "build"
 
     def requirements(self):
-        self.requires("nlohmann_json/3.7.3")
+        self.requires("nlohmann_json/{{nlohmannJsonVersion}}")
 
     def source(self):
         if not self.homepage.startswith("http"):

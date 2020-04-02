@@ -3,6 +3,8 @@
 
 #include <stdexcept>
 
+#include <nlohmann/json.hpp>
+
 // This macro is used to improve warning behavior across compilers for switch
 // statements on enums. It allows us to NOT define a default case, so the
 // compiler can warn us about unhandled enum codes, without the compiler

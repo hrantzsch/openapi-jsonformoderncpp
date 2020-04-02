@@ -1,7 +1,7 @@
 {{#models}}{{#model}}#ifndef {{modelHeaderGuardPrefix}}_{{classname}}_H_
 #define {{modelHeaderGuardPrefix}}_{{classname}}_H_
 
-#include "nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
 
 {{#hasOptional}}#include <optional>
 {{/hasOptional}}

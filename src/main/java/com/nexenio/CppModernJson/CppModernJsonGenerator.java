@@ -16,6 +16,9 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
 
   protected String projectName = "cpp-modern-json";
 
+  /** Version of the nlohmann/json library to use. Used in the CMakeLists and conanfile. */
+  protected String nlohmannJsonVersion = "3.7.3";
+
   // source folder where to write the files
   protected String modelsFolderName = "models";
 
@@ -139,6 +142,10 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
   public void processOpts() {
     super.processOpts();
 
+    // {{nlohmannJsonVersion}}
+    //
+    additionalProperties.put("nlohmannJsonVersion", nlohmannJsonVersion);
+
     // {{apiVersion}}
     //
     additionalProperties.put("apiVersion", apiVersion);
@@ -197,10 +204,6 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
 
     String modelPath = packageToPath(modelPackage);
     additionalProperties.put("modelPath", modelPath);
-
-    supportingFiles.add(
-        new SupportingFile(
-            "nlohmann/json.hpp", packagePath + File.separator + "nlohmann", "json.hpp"));
 
     supportingFiles.add(
         new SupportingFile("serialization.mustache", packagePath, "serialization.h"));
