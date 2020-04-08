@@ -213,12 +213,10 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     supportingFiles.add(new SupportingFile("conanfile.mustache", "", "conanfile.py"));
   }
 
-  /** Convert model name to file name. Returns the capitalized name */
-  // Overridden from parent to not "camelize" but only capitalize the name. This is needed to simply
-  // `#import {{classname}}.h` in source files.
+  /** Convert model name to file name. */
   @Override
   public String toModelFilename(String name) {
-    return StringUtils.capitalize(name);
+    return toModelName(name);
   }
 
   @Override
