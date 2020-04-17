@@ -29,11 +29,35 @@ class invalid_enum_value : public std::runtime_error {
 
 namespace detail {
 
-//! \brief Helper method to set optional values from json
+// Helper methods to convert json values to object member types. A
+// specialization for nlohmann::json exists because get_to() cannot be used for
+// these.
+
+template <typename T>
+void to_required(const nlohmann::json& j, const char* key, T& target) {
+    j.at(key).get_to(target);
+}
+
 template <typename T>
 void to_optional(const nlohmann::json& j, const char* key, T& target) {
     if (j.contains(key)) {
         j.at(key).get_to(target);
+    } else {
+        target = std::nullopt;
+    }
+}
+
+template <>
+inline void to_required(const nlohmann::json& j, const char* key,
+                        nlohmann::json& target) {
+    target = j.at(key);
+}
+
+template <>
+inline void to_optional(const nlohmann::json& j, const char* key,
+                 std::optional<nlohmann::json>& target) {
+    if (j.contains(key)) {
+        target = j.at(key);
     } else {
         target = std::nullopt;
     }
