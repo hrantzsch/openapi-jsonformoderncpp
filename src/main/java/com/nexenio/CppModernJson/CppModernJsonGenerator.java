@@ -16,7 +16,7 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
 
   protected String projectName = "cpp-modern-json";
 
-  /** Version of the nlohmann/json library to use. Used in the CMakeLists and conanfile. */
+  /** Version of the nlohmann/json library to use. Used in the CMakeLists. */
   protected String nlohmannJsonVersion = "3.7.3";
 
   // source folder where to write the files
@@ -183,15 +183,6 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     additionalProperties.put(
         "modelHeaderGuardPrefix", modelPackage.replaceAll("\\.", "_").toUpperCase(Locale.ROOT));
 
-    // {{scmUrl}}
-    //
-    // mandatory in order to use the conanfile
-    //
-    if (!additionalProperties.containsKey(CodegenConstants.SCM_URL)) {
-      LOGGER.warn(
-          "SCM URL is not set. conanfile will be broken. Please pass '-p scmUrl=https://...' to the generator.");
-    }
-
     /**
      * Supporting Files. You can write single files for the generator with the entire object tree
      * available. If the input file has a suffix of `.mustache it will be processed by the template
@@ -210,7 +201,6 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     supportingFiles.add(new SupportingFile("utility.mustache", packagePath, "utility.h"));
 
     supportingFiles.add(new SupportingFile("CMakeLists.mustache", "", "CMakeLists.txt"));
-    supportingFiles.add(new SupportingFile("conanfile.mustache", "", "conanfile.py"));
   }
 
   /** Convert model name to file name. */

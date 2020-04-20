@@ -22,5 +22,4 @@ java -cp ./openapi-generator-cli.jar:./target/cpp-modern-json-openapi-generator-
 org.openapitools.codegen.OpenAPIGenerator generate ${FORMAT_FLAG} \
 -g cpp-modern-json \
 --package-name=generated.dtos \
--p scmUrl="$(pwd)/generated" \
 -i petstore.yaml -o ./generated
