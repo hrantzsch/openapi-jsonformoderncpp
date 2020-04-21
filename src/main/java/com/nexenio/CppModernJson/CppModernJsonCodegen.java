@@ -1,4 +1,4 @@
-package com.nexenio.CppModernJson;
+package org.openapitools.codegen.languages;
 
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -6,13 +6,12 @@ import java.io.File;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
-import org.openapitools.codegen.languages.AbstractCppCodegen;
 import org.openapitools.codegen.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CppModernJsonGenerator extends AbstractCppCodegen implements CodegenConfig {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CppModernJsonGenerator.class);
+public class CppModernJsonCodegen extends AbstractCppCodegen implements CodegenConfig {
+  private static final Logger LOGGER = LoggerFactory.getLogger(CppModernJsonCodegen.class);
 
   protected String projectName = "cpp-modern-json";
 
@@ -22,7 +21,6 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
   // source folder where to write the files
   protected String modelsFolderName = "models";
 
-  protected String apiVersion = "14";
   protected String packageName = "org.openapitools";
 
   protected String packageToPath(String packageName) {
@@ -82,7 +80,7 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     return "Generates a cpp-modern-json client library.";
   }
 
-  public CppModernJsonGenerator() {
+  public CppModernJsonCodegen() {
     super();
 
     /** Output folder. */
@@ -145,10 +143,6 @@ public class CppModernJsonGenerator extends AbstractCppCodegen implements Codege
     // {{nlohmannJsonVersion}}
     //
     additionalProperties.put("nlohmannJsonVersion", nlohmannJsonVersion);
-
-    // {{apiVersion}}
-    //
-    additionalProperties.put("apiVersion", apiVersion);
 
     // {{projectName}}
     //

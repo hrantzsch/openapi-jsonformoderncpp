@@ -1,4 +1,4 @@
-package com.nexenio.CppModernJson;
+package org.openapitools.codegen.languages;
 
 import org.junit.Test;
 import org.openapitools.codegen.ClientOptInput;
@@ -15,7 +15,7 @@ import org.openapitools.codegen.config.CodegenConfigurator;
  * 2) To launch this test in Eclipse: right-click | Debug As | JUnit Test
  *
  */
-public class CppModernJsonGeneratorTest {
+public class CppModernJsonCodegenTest {
 
   // use this test to launch you code generator in the debugger.
   // this allows you to easily set break points in MyclientcodegenGenerator.
@@ -26,7 +26,7 @@ public class CppModernJsonGeneratorTest {
     final CodegenConfigurator configurator = new CodegenConfigurator()
               .setGeneratorName("cpp-modern-json") // use this codegen library
               .setInputSpec("petstore.yaml") // sample OpenAPI file
-              // .setInputSpec("https://raw.githubusercontent.com/openapitools/openapi-generator/master/modules/openapi-generator/src/test/resources/2_0/petstore.yaml") // or from the server
+              .setInputSpec("https://raw.githubusercontent.com/openapitools/openapi-generator/master/modules/openapi-generator/src/test/resources/3_0/petstore.yaml") // or from the server
               .setOutputDir("out/cpp-modern-json"); // output directory
 
     final ClientOptInput clientOptInput = configurator.toClientOptInput();
