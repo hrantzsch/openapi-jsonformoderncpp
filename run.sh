@@ -5,7 +5,7 @@ mvn clean install
 
 # to invoke our generator directly, we need the openapi-generator CLI
 if [ ! -f openapi-generator-cli.jar ]; then
-    wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/4.2.3/openapi-generator-cli-4.2.3.jar \
+    wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/4.3.1/openapi-generator-cli-4.3.1.jar \
     -O openapi-generator-cli.jar
 fi
 
