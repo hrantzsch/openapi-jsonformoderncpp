@@ -27,6 +27,19 @@ class invalid_enum_value : public std::runtime_error {
         using std::runtime_error::runtime_error;
 };
 
+// TODO: document
+// TODO: is here a good place for this?
+template <typename T, typename = void>
+struct has_discriminator : std::false_type {};
+
+// TODO: Find another way to implement this -- discriminator_value is unused
+//       and should be removed. Can we check for `has_Alternative_typedef`?
+template <typename T>
+struct has_discriminator<
+    T, std::enable_if_t<std::is_invocable_v<
+           decltype(&T::discriminator_value), json const&>>>
+    : std::true_type {}
+
 namespace detail {
 
 // Helper methods to convert json values to object member types. A

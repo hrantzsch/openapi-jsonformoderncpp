@@ -5,6 +5,8 @@
 
 {{#hasOptional}}#include <optional>
 {{/hasOptional}}
+{{#discriminator}}#include <variant>
+{{/discriminator}}
 
 {{#imports}}{{{this}}}
 {{/imports}}
@@ -25,9 +27,25 @@ namespace {{this}} {
  */
 {{/description}}
 struct {{classname}} {
-
-    static void to_json(::nlohmann::json& j, const {{classname}}& obj);
+{{^discriminator}}
     static void from_json(const ::nlohmann::json& j, {{classname}}& obj);
+{{/discriminator}}
+{{#discriminator}}
+    /** {{classname}} is an abstract type. It's concrete types are
+     *  {{#mappedModels}}{{modelName}}{{^-last}}, {{/-last}}{{/mappedModels}}.
+     *
+     *  TODO: explain detailed usage; refer to `has_discriminator<>` and `discriminator_value()`
+     */
+    using Alternative = std::variant<{{#mappedModels}}{{modelName}}{{^-last}}, {{/-last}}{{/mappedModels}}>;
+
+    // TODO: This method is no longer used. The one line that was it's implementation is now
+    //       part of `from_json( ... , Alternative&)`
+    //       Remove this method and implement `has_discriminator` in some other way.
+    static {{propertyName}} discriminator_value(const ::nlohmann::json& j);
+
+    static void from_json(const ::nlohmann::json& j, Alternative& obj);
+{{/discriminator}}
+    static void to_json(::nlohmann::json& j, const {{classname}}& obj);
 
 {{#hasEnums}}    // enums
 {{#vars}}{{#isEnum}}{{#description}}    /**
@@ -72,15 +90,15 @@ inline std::string to_string({{classname}}::{{enumName}} value) {
 {{/vars}}
 {{/hasEnums}}
 
-{{#modelNamespaceDeclarations}}
-}
-{{/modelNamespaceDeclarations}}
-
 {{! ---------------------------------------------------------------------- }}
 {{! adl_serializer specializations for enums in this model                 }}
 {{! ---------------------------------------------------------------------- }}
 
 {{#hasEnums}}
+{{#modelNamespaceDeclarations}}
+}
+{{/modelNamespaceDeclarations}}
+
 {{! adl_serializer specializations need to live in nlohmann namespace }}
 namespace nlohmann {
 
@@ -99,17 +117,18 @@ struct adl_serializer<{{modelNamespace}}::{{classname}}::{{enumName}}> {
 {{/isEnum}}
 {{/vars}}
 }
-{{/hasEnums}}
-
-{{! ---------------------------------------------------------------------- }}
-{{! to_json and from_json for all fields in this model                     }}
-{{! ---------------------------------------------------------------------- }}
 
 {{! to_ and from_json need to live in the model namespace }}
 {{! define them after the adl_serializer specialization they will use, though }}
 {{#modelNamespaceDeclarations}}
 namespace {{this}} {
 {{/modelNamespaceDeclarations}}
+
+{{/hasEnums}}
+
+{{! ---------------------------------------------------------------------- }}
+{{! to_json and from_json for all fields in this model                     }}
+{{! ---------------------------------------------------------------------- }}
 
 inline void to_json(nlohmann::json& j, const {{classname}}& obj) {
     {{classname}}::to_json(j, obj);

@@ -7,6 +7,28 @@
 namespace {{this}} {
 {{/modelNamespaceDeclarations}}
 
+{{^discriminator}}
+void {{classname}}::from_json(const ::nlohmann::json& j, {{classname}}& obj) {
+{{#requiredVars}}    j.at("{{baseName}}").get_to(obj.{{baseName}});
+{{/requiredVars}}
+{{#optionalVars}}    detail::to_optional(j, "{{baseName}}", obj.{{baseName}});
+{{/optionalVars}}
+}
+{{/discriminator}}
+{{#discriminator}}
+void {{classname}}::from_json(const json& j, {{classname}}::Alternative& obj) {
+    const auto discriminator = j.at("{{propertyBaseName}}").get<{{classname}}::{{propertyName}}>();
+    switch (discriminator) {
+        {{#mappedModels}}
+        case {{classname}}::{{propertyName}}::{{mappingName}}:
+            obj = j.get<{{modelName}}>();
+            return;
+        {{/mappedModels}}
+    }
+    UNREACHABLE_CODE
+}
+{{/discriminator}}
+
 void {{classname}}::to_json(::nlohmann::json& j, const {{classname}}& obj) {
     j = ::nlohmann::json{
 {{#vars}}        {"{{baseName}}", obj.{{baseName}}},
@@ -14,21 +36,15 @@ void {{classname}}::to_json(::nlohmann::json& j, const {{classname}}& obj) {
     };
 }
 
-void {{classname}}::from_json(const ::nlohmann::json& j, {{classname}}& obj) {
-{{#requiredVars}}    j.at("{{baseName}}").get_to(obj.{{baseName}});
-{{/requiredVars}}
-{{#optionalVars}}    detail::to_optional(j, "{{baseName}}", obj.{{baseName}});
-{{/optionalVars}}
-}
-
-
 {{#hasEnums}}{{#vars}}{{#isEnum}}
+// ---- enum conversion methods ----
+
 std::string {{classname}}::to_string({{classname}}::{{enumName}} value) {
     switch (value) {
 {{#allowableValues}}
 {{#enumVars}}
-    case {{classname}}::{{enumName}}::{{name}}:
-        return "{{name}}";
+        case {{classname}}::{{enumName}}::{{name}}:
+            return "{{name}}";
 {{/enumVars}}
 {{/allowableValues}}
     }
@@ -43,23 +59,20 @@ void {{classname}}::from_json(const ::nlohmann::json& j, {{classname}}::{{enumNa
     auto str = j.get_ref<const ::nlohmann::json::string_t&>();
 {{#allowableValues}}
 {{#enumVars}}
-    if (str == "{{name}}") {
+    {{^-first}}} else {{/-first}}if (str == "{{name}}") {
         value = {{classname}}::{{enumName}}::{{name}};
-        return;
-    }
 {{/enumVars}}
 {{/allowableValues}}
-    throw invalid_enum_value(str);
+    } else {
+        throw invalid_enum_value(str);
+    }
 }
 
 {{/isEnum}}
 {{/vars}}
 {{/hasEnums}}
-
-
 {{#modelNamespaceDeclarations}}
 }
 {{/modelNamespaceDeclarations}}
-
 {{/model}}
 {{/models}}
