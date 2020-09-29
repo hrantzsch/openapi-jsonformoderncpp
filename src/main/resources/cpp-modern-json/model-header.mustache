@@ -29,6 +29,13 @@ struct {{classname}} {
     static void to_json(::nlohmann::json& j, const {{classname}}& obj);
     static void from_json(const ::nlohmann::json& j, {{classname}}& obj);
 
+{{#isEnum}}
+    enum class {{classname}} {
+{{#allowableValues}}{{#enumVars}}        {{name}}{{^-last}},{{/-last}}
+{{/enumVars}}{{/allowableValues}}    };
+
+{{/isEnum}}
+
 {{#hasEnums}}    // enums
 {{#vars}}{{#isEnum}}{{#description}}    /**
      * \brief {{description}}
