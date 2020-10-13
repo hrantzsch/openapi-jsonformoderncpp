@@ -745,3 +745,12 @@ components:
           type: string
         message:
           type: string
+        api_enum:
+          $ref: "#/components/schemas/ApiEnum"
+    ApiEnum:
+      title: An uploaded response
+      description: Describes an enum
+      type: string
+      enum:
+        - foo
+        - bar

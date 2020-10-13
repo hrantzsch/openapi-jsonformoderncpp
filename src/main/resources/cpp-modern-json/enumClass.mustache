@@ -1,0 +1,17 @@
+#include <nlohmann/json.hpp>
+
+{{#modelNamespaceDeclarations}}
+namespace {{this}} {
+{{/modelNamespaceDeclarations}}
+enum class {{classname}} {
+{{#allowableValues}}{{#enumVars}}        {{name}}{{^-last}},{{/-last}}
+{{/enumVars}}{{/allowableValues}}    };
+
+std::string to_string({{classname}} value);
+
+void to_json(::nlohmann::json& j, const {{classname}}& value);
+void from_json(const ::nlohmann::json& j, {{classname}}& value);
+
+{{#modelNamespaceDeclarations}}
+}
+{{/modelNamespaceDeclarations}}

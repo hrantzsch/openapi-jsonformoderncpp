@@ -1,0 +1,26 @@
+std::string to_string({{classname}} value) {
+    switch (value) {
+{{#allowableValues}}
+{{#enumVars}}
+    case {{classname}}::{{name}}:
+        return "{{name}}";
+{{/enumVars}}
+{{/allowableValues}}
+    }
+}
+
+void to_json(::nlohmann::json& j, const {{classname}}& value) {
+    j = to_string(value);
+}
+
+void from_json(const ::nlohmann::json& j, {{classname}}& value) {
+    auto str = j.get_ref<const ::nlohmann::json::string_t&>();
+{{#allowableValues}}
+{{#enumVars}}
+    if (str == "{{name}}") {
+        value = {{classname}}::{{name}};
+        return;
+    }
+{{/enumVars}}
+{{/allowableValues}}
+}
